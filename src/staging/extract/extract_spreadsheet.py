@@ -2,7 +2,8 @@ import pandas as pd
 from src.utils.helper import etl_log
 from datetime import datetime
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.auth.transport.requests import Request
+from google.auth import load_credentials_from_file
 import os
 
 def auth_gspread():
@@ -12,7 +13,7 @@ def auth_gspread():
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     
     #Define your credentials
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(os.getenv('CRED_PATH'), scope)
+    credentials, project = load_credentials_from_file(os.getenv('CRED_PATH'), scopes=scope)
     return gspread.authorize(credentials)
 
 def init_key_file(key_file:str):
@@ -40,7 +41,10 @@ def extract_sheet(key_file: str, worksheet_name: str) -> pd.DataFrame:
         df_result.columns = df_result.iloc[0]
         
         # get all the rest of the values
-        df_result = df_result[1:,:-1].copy()
+        df_result = df_result[1:].copy()
+
+        # Add the 'created_at' column with the current datetime
+        df_result['created_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Log success
         log_msg = {
