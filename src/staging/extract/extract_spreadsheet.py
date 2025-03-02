@@ -44,7 +44,7 @@ def extract_sheet(key_file: str, worksheet_name: str) -> pd.DataFrame:
         df_result = df_result[1:].copy()
 
         # Add the 'created_at' column with the current datetime
-        df_result['created_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        df_result['created_at'] = datetime.now()
 
         # Log success
         log_msg = {
