@@ -21,8 +21,14 @@ def transform_dim_products(data: pd.DataFrame, df_store_branch: pd.DataFrame) ->
             'created_at': 'created_at'
         })
 
-        # Merge with products to get product keys
-        data = data.merge(df_store_branch[['store_name', 'sk_store_branch']], on='store_name', how='left')
+        # Map `store_branch` (from products) to `sk_store_id` (from dim_store_branch)
+        # Assuming `store_branch` in products corresponds to `store_name` in dim_store_branch
+        data = data.merge(
+            df_store_branch[['store_name', 'sk_store_id']],
+            left_on='store_branch',
+            right_on='store_name',
+            how='left'
+        )
 
         # Ensure no negative values in the price fields
         data['unit_price'] = data['unit_price'].apply(lambda x: re.sub(r'\s*-', '', str(x)))
