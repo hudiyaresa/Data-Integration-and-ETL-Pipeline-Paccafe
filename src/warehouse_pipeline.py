@@ -21,9 +21,9 @@ def warehouse_pipeline():
     df_store_branch_tf = transform_dim_store_branch(df_store_branch)
     df_customers_tf = transform_dim_customers(df_customers)
     df_employees_tf = transform_dim_employees(df_employees)
-    df_products_tf = transform_dim_products(df_products, df_store_branch)
-    df_orders_tf = transform_fct_order(df_orders, df_customers, df_employees, df_order_details)  # merging with other data
-    df_inventory_tf = transform_fct_inventory(df_inventory, df_products)  # merging with other data
+    df_products_tf = transform_dim_products(df_products, df_store_branch_tf)
+    df_orders_tf = transform_fct_order(df_orders, df_customers_tf, df_employees_tf, df_order_details)  # merging with other data
+    df_inventory_tf = transform_fct_inventory(df_inventory, df_products_tf)  # merging with other data
     
     # Load data into warehouse
     load_warehouse(df_store_branch_tf, 'public', 'dim_store_branch', 'nk_store_id', 'staging')

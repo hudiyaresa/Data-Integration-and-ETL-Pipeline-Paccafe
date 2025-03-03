@@ -37,6 +37,6 @@ def transform_dim_store_branch(data: pd.DataFrame) -> pd.DataFrame:
             "error_msg": str(e)
         }
         print(e)
-        handle_error(data, bucket_name='error-dellstore', table_name='dim_store_branch', step='warehouse', component='transformation')
+        handle_error(data, bucket_name='error-paccafe', table_name='dim_store_branch', step='warehouse', component='transformation')
     finally:
         etl_log(log_msg)

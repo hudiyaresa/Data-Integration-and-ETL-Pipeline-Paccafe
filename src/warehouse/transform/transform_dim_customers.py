@@ -43,7 +43,7 @@ def transform_dim_customers(data: pd.DataFrame) -> pd.DataFrame:
         }
         print(e)
         # Error handling (store failed data)
-        handle_error(data, bucket_name='error-dellstore', table_name='dim_customers', step='warehouse', component='transformation')
+        handle_error(data, bucket_name='error-paccafe', table_name='dim_customers', step='warehouse', component='transformation')
     finally:
         # Save log
         etl_log(log_msg)

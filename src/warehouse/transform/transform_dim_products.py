@@ -3,7 +3,7 @@ from src.utils.helper import etl_log, handle_error
 from datetime import datetime
 import re
 
-def transform_dim_products(data: pd.DataFrame, df_store_branch: pd.DataFrame) -> pd.DataFrame:
+def transform_dim_products(data: pd.DataFrame, df_store_branch_tf: pd.DataFrame) -> pd.DataFrame:
     """
     This function is used to transform product data from staging to the data warehouse.
     Handles negative values in `unit_price` and `cost_price` by converting them to absolute values.
@@ -21,20 +21,22 @@ def transform_dim_products(data: pd.DataFrame, df_store_branch: pd.DataFrame) ->
             'created_at': 'created_at'
         })
 
-        # Map `store_branch` (from products) to `sk_store_id` (from dim_store_branch)
-        # Assuming `store_branch` in products corresponds to `store_name` in dim_store_branch
-        data = data.merge(
-            df_store_branch[['store_name', 'sk_store_id']],
-            left_on='store_branch',
-            right_on='store_name',
-            how='left'
-        )
+        # Drop duplicate nk_product_id if any
+        data = data.drop_duplicates(subset="nk_product_id")        
+
+        # Extract data from dim_store_branch
+        data['sk_store_branch'] = data["store_name"].apply(lambda x: df_store_branch_tf.loc[df_store_branch_tf['store_name'] == x, 'sk_store_id'].values[0])
+
+        # Convert price columns to numeric
+        data['unit_price'] = pd.to_numeric(data['unit_price'].apply(lambda x: re.sub(r'\D', '', str(x))), errors='coerce')
+        data['cost_price'] = pd.to_numeric(data['cost_price'].apply(lambda x: re.sub(r'\D', '', str(x))), errors='coerce')        
 
         # Ensure no negative values in the price fields
         data['unit_price'] = data['unit_price'].apply(lambda x: re.sub(r'\s*-', '', str(x)))
         data['cost_price'] = data['cost_price'].apply(lambda x: re.sub(r'\s*-', '', str(x)))
 
-        # Remove rows where store_id or other critical columns are null
+        # Drop unnecessary columns and handle nulls
+        data = data.drop(columns=['nk_store_id', 'store_name'])
         data = data.dropna(subset=['nk_product_id'])
 
         log_msg = {
@@ -59,7 +61,7 @@ def transform_dim_products(data: pd.DataFrame, df_store_branch: pd.DataFrame) ->
             "error_msg": str(e)
         }
         print(f"Error in transformation: {e}")
-        handle_error(data, bucket_name='error-dellstore', table_name='dim_products', step='warehouse', component='transformation')
+        handle_error(data, bucket_name='error-paccafe', table_name='dim_products', step='warehouse', component='transformation')
 
     finally:
         etl_log(log_msg)

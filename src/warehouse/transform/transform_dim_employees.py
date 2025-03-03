@@ -21,6 +21,9 @@ def transform_dim_employees(data: pd.DataFrame) -> pd.DataFrame:
             'created_at': 'created_at'
         })
 
+        # Drop duplicate employee_id if any
+        data = data.drop_duplicates(subset="nk_employee_id")   
+
         # Drop rows where the role or other important fields are missing
         data = data.dropna(subset=['role', 'first_name', 'last_name'])
 
@@ -46,7 +49,7 @@ def transform_dim_employees(data: pd.DataFrame) -> pd.DataFrame:
             "error_msg": str(e)
         }
         print(f"Error in transformation: {e}")
-        handle_error(data, bucket_name='error-dellstore', table_name='dim_employees', step='warehouse', component='transformation')
+        handle_error(data, bucket_name='error-paccafe', table_name='dim_employees', step='warehouse', component='transformation')
 
     finally:
         etl_log(log_msg)

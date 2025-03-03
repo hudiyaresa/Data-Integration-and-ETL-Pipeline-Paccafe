@@ -2,7 +2,7 @@ import pandas as pd
 from src.utils.helper import etl_log, handle_error
 from datetime import datetime
 
-def transform_fct_inventory(data: pd.DataFrame, df_products: pd.DataFrame) -> pd.DataFrame:
+def transform_fct_inventory(data: pd.DataFrame, df_products_tf: pd.DataFrame) -> pd.DataFrame:
     """
     This function transforms inventory data from staging into the fct_inventory table in the warehouse.
     """
@@ -10,7 +10,7 @@ def transform_fct_inventory(data: pd.DataFrame, df_products: pd.DataFrame) -> pd
         # Rename columns
         data = data.rename(columns={
             'tracking_id': 'nk_tracking_id',
-            'product_id': 'sk_product_id',
+            'product_id': 'nk_product_id',
             'quantity_change': 'quantity_change',
             'change_date': 'change_date',
             'reason': 'reason',
@@ -18,7 +18,7 @@ def transform_fct_inventory(data: pd.DataFrame, df_products: pd.DataFrame) -> pd
         })
 
         # Merge with products to get product keys
-        data = data.merge(df_products[['product_id', 'nk_product_id']], on='product_id', how='left')
+        data['nk_product_id'] = data["nk_product_id"].apply(lambda x: df_products_tf.loc[df_products_tf['nk_product_id'] == x, 'sk_product_id'].values[0])
 
         # Convert change_date to integer (timestamp in DWH)
         data['change_date'] = pd.to_datetime(data['change_date']).astype(int) / 10**9  # Convert to Unix timestamp (int)
