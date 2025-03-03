@@ -27,6 +27,14 @@ def transform_dim_products(data: pd.DataFrame, df_store_branch_tf: pd.DataFrame)
         # Extract data from dim_store_branch
         data['sk_store_branch'] = data["store_name"].apply(lambda x: df_store_branch_tf.loc[df_store_branch_tf['store_name'] == x, 'sk_store_id'].values[0])
 
+        # Merge with dim_store_branch to get sk_store_branch
+        # data = data.merge(
+        #     df_store_branch_tf[['store_name', 'sk_store_id']],
+        #     how='left',
+        #     on='store_name'
+        # )
+        # data = data.rename(columns={'sk_store_id': 'sk_store_branch'})
+
         # Convert price columns to numeric
         data['unit_price'] = pd.to_numeric(data['unit_price'].apply(lambda x: re.sub(r'\D', '', str(x))), errors='coerce')
         data['cost_price'] = pd.to_numeric(data['cost_price'].apply(lambda x: re.sub(r'\D', '', str(x))), errors='coerce')        

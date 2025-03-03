@@ -18,7 +18,7 @@ def transform_fct_inventory(data: pd.DataFrame, df_products_tf: pd.DataFrame) ->
         })
 
         # Merge with products to get product keys
-        data['nk_product_id'] = data["nk_product_id"].apply(lambda x: df_products_tf.loc[df_products_tf['nk_product_id'] == x, 'sk_product_id'].values[0])
+        data['sk_product_id'] = data["nk_product_id"].apply(lambda x: df_products_tf.loc[df_products_tf['nk_product_id'] == x, 'sk_product_id'].values[0])
 
         # Convert change_date to integer (timestamp in DWH)
         data['change_date'] = pd.to_datetime(data['change_date']).astype(int) / 10**9  # Convert to Unix timestamp (int)
