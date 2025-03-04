@@ -48,6 +48,6 @@ def transform_fct_inventory(data: pd.DataFrame, df_products_tf: pd.DataFrame) ->
             "error_msg": str(e)
         }
         print(e)
-        handle_error(data, bucket_name='error-dellstore', table_name='fct_inventory', step='warehouse', component='transformation')
+        handle_error(data, bucket_name='error-paccafe', table_name='fct_inventory', step='warehouse', component='transformation')
     finally:
         etl_log(log_msg)
